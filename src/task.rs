@@ -12,4 +12,6 @@ mod task {
     }
 }
 
-pub struct task {}
+pub struct task {
+    // callable: fn(),
+}
