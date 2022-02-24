@@ -6,9 +6,9 @@
 
 mod task {
     pub enum taskType {
-        static_fn,
-        subflow,
-        module,
+        static_fn(task::static_fn),
+        subflow(task::subflow),
+        module(task::module),
     }
 }
 
