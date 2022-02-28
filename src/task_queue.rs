@@ -1,11 +1,11 @@
 use std::collections::VecDeque;
-use task::task;
+use crate::task;
+// use task::task;
 
 // pub mod taskqueue;
-mod task;
 
-pub struct task_queue {
-    queue: VecDeque<task>,
+pub struct TaskQueue {
+    queue: VecDeque<task::Task>,
     affinity: u32,
     // process affinity?
 }

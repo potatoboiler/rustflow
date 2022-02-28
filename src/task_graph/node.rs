@@ -1,7 +1,7 @@
 // use std::option;
 
-mod task;
-
+use crate::task;
 pub struct Node {
-    executable: Option<>
+    executable: task::Task,
+    successors: Vec<Node>,
 }

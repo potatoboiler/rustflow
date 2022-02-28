@@ -4,14 +4,15 @@
 // - dynamic
 // - composable tasks ???
 
-mod task {
-    pub enum taskType {
-        static_fn(task::static_fn),
-        subflow(task::subflow),
-        module(task::module),
-    }
-}
+struct StaticFn {}
+struct Module {}
+struct Subflow {}
 
-pub struct task {
-    // callable: fn(),
+enum TaskType {
+    StaticFn(StaticFn),
+    Subflow(Subflow),
+    Module(Module),
+}
+pub struct Task {
+    callable: TaskType,
 }
