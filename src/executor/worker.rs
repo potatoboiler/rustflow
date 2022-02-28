@@ -1,24 +1,25 @@
-use crate::task;
+use crate::{task::Task, task_queue::TaskQueue};
 
-struct worker {
+struct Worker {
     stop: bool,
-    t: task::task,
-    task_queue: task_queue,
+    // t: task::Task,
+    queue: TaskQueue,
     // thread runner : can be CPU or GPU or other
 }
 
-fn ABP_worker_loop(w: worker) {
-    let t: Option<task::task> = None;
+fn abp_worker_loop(w: &mut Worker) {
+    let mut t: Option<Task> = None;
     while !w.stop {
         match t {
-            Some(p) => println!("test!"),
+            Some(ref a) => execute_task(w, a),
             None => wait_yield(),
         }
+        t = w.queue.pop_back();
     }
 }
 
-fn execute_task(w: worker, t: task) {
-    // invoke t 
+fn execute_task(w: &mut Worker, t: &Task) {
+    // invoke t
 }
 
 fn wait_yield() {}
