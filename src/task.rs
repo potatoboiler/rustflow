@@ -4,9 +4,19 @@
 // - dynamic
 // - composable tasks ???
 
-struct StaticFn {}
-struct Module {}
-struct Subflow {}
+trait Executable {
+    fn execute();
+}
+
+struct StaticFn {
+    // func: Fn(),
+}
+struct Module {
+    
+}
+struct Subflow {
+    // subflows should be executed as their own task flow??
+}
 
 enum TaskType {
     StaticFn(StaticFn),

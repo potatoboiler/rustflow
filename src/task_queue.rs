@@ -1,9 +1,7 @@
+// use https://static.rust-lang.org/doc/master/std/sync/mpsc/index.html instead?
 use crate::task::Task;
 use std::collections::VecDeque;
 use std::ops::{Deref, DerefMut};
-// use task::task;
-
-// pub mod taskqueue;
 
 pub struct TaskQueue {
     queue: VecDeque<Task>,

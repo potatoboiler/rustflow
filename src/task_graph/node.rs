@@ -3,5 +3,5 @@
 use crate::task;
 pub struct Node {
     executable: task::Task,
-    successors: Vec<Node>,
+    // successors: Vec<&Node>,
 }
