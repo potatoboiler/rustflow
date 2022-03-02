@@ -3,6 +3,14 @@
 mod node;
 use node::Node;
 
-pub struct TaskGraph {
+pub(crate) struct TaskGraph {
     nodes: Vec<Node>,
+}
+
+impl TaskGraph {
+    pub(crate) fn new() -> TaskGraph {
+        TaskGraph {
+            nodes: Vec::<Node>::default(),
+        }
+    }
 }

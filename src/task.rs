@@ -4,24 +4,40 @@
 // - dynamic
 // - composable tasks ???
 
+use std::ops::Deref;
+
 trait Executable {
     fn execute();
 }
 
-struct StaticFn {
+impl Executable for StaticFn {
+    fn execute() {}
+}
+pub struct StaticFn {
     // func: Fn(),
+// args: Vec<any>,
 }
-struct Module {
-    
+impl Executable for Module {
+    fn execute() {}
 }
-struct Subflow {
+pub struct Module {}
+impl Executable for Subflow {
+    fn execute() {}
+}
+pub struct Subflow {
     // subflows should be executed as their own task flow??
 }
 
-enum TaskType {
+pub enum TaskType {
     StaticFn(StaticFn),
     Subflow(Subflow),
     Module(Module),
+}
+impl Deref for Task {
+    type Target = TaskType;
+    fn deref(&self) -> &Self::Target {
+        &self.callable
+    }
 }
 pub struct Task {
     callable: TaskType,
