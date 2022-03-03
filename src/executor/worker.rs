@@ -13,10 +13,10 @@ enum ThreadType {
 }
 
 // consider refactoring ref to parent as https://www.reddit.com/r/rust/comments/cnjhup/idiomatic_way_to_reference_parent_struct/ewb5r1y/
-pub(super) struct Worker<'a> {
+pub(super) struct Worker<'a, T> {
     _stop: bool,
     // t: task::Task,
-    queue: TaskQueue<'a>,
+    queue: TaskQueue<'a, T>,
     dom: Domain,
     thread: ThreadType,
     // curr_task: mut Option<Task>,
@@ -38,11 +38,11 @@ fn abp_worker_loop(w: &mut Worker) {
 */
 
 // actually does stuff
-impl<'a> Worker<'a> {
+impl<'a, T> Worker<'a, T> {
     // move all functions into here
-    pub(super) fn new(s: &mut Scheduler) {}
+    pub(super) fn new(s: &mut Scheduler<'a,T>) {}
 }
-fn actual_worker_loop(w: &mut Worker, s: &mut Scheduler) {
+fn actual_worker_loop<'a, T>(w: &mut Worker<'a, T>, s: &mut Scheduler<'a,T>) {
     // let t: &Option<Task> = &None;
     loop {
         exploit_task(w, s);
@@ -53,7 +53,7 @@ fn actual_worker_loop(w: &mut Worker, s: &mut Scheduler) {
 }
 use super::WorkerAction::*;
 // behavior will start to differ because we are no longer passing a NIL task into the function, we are popping it directly
-fn exploit_task(w: &mut Worker, s: &mut Scheduler) {
+fn exploit_task<'a, T>(w: &mut Worker<'a, T>, s: &mut Scheduler<'a,T>) {
     let t: &Option<Task> = &w.queue.pop_back();
     if !t.is_none() {
         if s.atom_inc(Actives, &w.dom) == 1 && s.atom_load(Actives, &w.dom) == 0 {
@@ -68,12 +68,12 @@ fn exploit_task(w: &mut Worker, s: &mut Scheduler) {
     }
     s.atom_dec(Actives, &w.dom);
 }
-fn wait_for_task(w: &mut Worker, t: &Option<Task>) -> bool {
+fn wait_for_task<'a, T>(w: &mut Worker<'a, T>, t: &Option<Task<'a, T>>) -> bool {
     // FIXME
     false
 }
 
-fn execute_task(w: &mut Worker, t: &Option<Task>) {
+fn execute_task<'a, T>(w: &mut Worker<'a, T>, t: &Option<Task<'a, T>>) {
     match w {
         Worker { dom: CPU, .. } => println!("place"),
         Worker { dom: GPU, .. } => println!("place"),
