@@ -29,7 +29,7 @@ enum WorkerAction {
     Thieves,
 }
 
-impl Scheduler {
+impl <'a>Scheduler <'a>{
     #[inline(always)]
     fn get_map_atom(&mut self, a: WorkerAction, d: &Domain) -> &AtomicU32 {
         let map: &mut HashMap<Domain, AtomicU32> = match a {
@@ -44,7 +44,7 @@ trait Atomic {
     fn atom_dec(&mut self, a: WorkerAction, d: &Domain) -> u32;
     fn atom_load(&mut self, a: WorkerAction, d: &Domain) -> u32;
 }
-impl Atomic for Scheduler {
+impl<'a> Atomic for Scheduler<'a> {
     fn atom_inc(&mut self, a: WorkerAction, d: &Domain) -> u32 {
         self.get_map_atom(a, d).fetch_add(1, Relaxed) + 1
     }
@@ -55,11 +55,11 @@ impl Atomic for Scheduler {
         self.get_map_atom(a, d).load(Relaxed)
     }
 }
-pub struct Scheduler {
-    workers: Vec<Worker>,
+pub struct Scheduler<'a> {
+    workers: Vec<Worker<'a>>,
     actives: HashMap<Domain, AtomicU32>,
     thieves: HashMap<Domain, AtomicU32>,
-    shared_queues: HashMap<Domain, VecDeque<Task>>, // may need to refactor if extra traits are needed?
+    shared_queues: HashMap<Domain, VecDeque<Task<'a>>>, // may need to refactor if extra traits are needed?
     // activesLock:
     notifiers: HashMap<Domain, Notifier>,
 }
@@ -70,13 +70,13 @@ impl Default for Notifier {
         Notifier {}
     }
 }
-pub struct Executor {
-    graph: TaskGraph,
-    scheduler: Scheduler,
+pub struct Executor<'a> {
+    graph: TaskGraph<'a>,
+    scheduler: Scheduler<'a>,
 }
 
-impl Default for Scheduler {
-    fn default() -> Scheduler {
+impl<'a> Default for Scheduler<'a> {
+    fn default() -> Scheduler<'a> {
         Scheduler {
             // refactor default behavior
             workers: Vec::<Worker>::default(),
@@ -91,8 +91,8 @@ impl Default for Scheduler {
         }
     }
 }
-impl Scheduler {
-    fn new(num_threads: u32, num_gpus: u32) -> Scheduler {
+impl<'a> Scheduler<'a> {
+    fn new(num_threads: u32, num_gpus: u32) -> Scheduler<'a> {
         // i guess, we assume that gpus are 1-to-1 with workers
         assert!(num_threads > 0);
         let tmp_workers = Vec::<Worker>::new();
@@ -103,8 +103,8 @@ impl Scheduler {
     }
 }
 
-impl Executor {
-    fn new() -> Executor {
+impl<'a> Executor<'a> {
+    fn new() -> Executor<'a> {
         // let Scheduler { workers: 5, actives, thieves, shared_queues, notifiers }
         Executor {
             // FIXME

@@ -13,10 +13,10 @@ enum ThreadType {
 }
 
 // consider refactoring ref to parent as https://www.reddit.com/r/rust/comments/cnjhup/idiomatic_way_to_reference_parent_struct/ewb5r1y/
-pub(super) struct Worker {
+pub(super) struct Worker<'a> {
     _stop: bool,
     // t: task::Task,
-    queue: TaskQueue,
+    queue: TaskQueue<'a>,
     dom: Domain,
     thread: ThreadType,
     // curr_task: mut Option<Task>,
@@ -38,11 +38,9 @@ fn abp_worker_loop(w: &mut Worker) {
 */
 
 // actually does stuff
-impl Worker {
+impl<'a> Worker<'a> {
     // move all functions into here
-    pub(super) fn new(s: &mut Scheduler) {
-
-    }
+    pub(super) fn new(s: &mut Scheduler) {}
 }
 fn actual_worker_loop(w: &mut Worker, s: &mut Scheduler) {
     // let t: &Option<Task> = &None;

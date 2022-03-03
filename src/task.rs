@@ -10,12 +10,21 @@ trait Executable {
     fn execute();
 }
 
-impl Executable for StaticFn {
+impl<'a> StaticFn<'a> {
+    fn new(func: dyn Fn()) -> StaticFn<'a> {
+        StaticFn {
+            function: Box::<dyn Fn()>::new(func),
+        }
+    }
+}
+impl<'a> Executable for StaticFn<'a> {
     fn execute() {}
 }
-pub struct StaticFn {
-    // func: Fn(),
-// args: Vec<any>,
+// https://github.com/rhaiscript/rhai/blob/main/src/func/func.rs
+// RHAI has some nice generic fn pointers?
+// function: Box<dyn Fn() -> ()>,
+pub struct StaticFn<'a> {
+    function: Box<dyn Fn() + 'a>,
 }
 impl Executable for Module {
     fn execute() {}
@@ -28,17 +37,29 @@ pub struct Subflow {
     // subflows should be executed as their own task flow??
 }
 
-pub enum TaskType {
-    StaticFn(StaticFn),
+/* Taken from the original taskflow source
+TaskType::PLACEHOLDER     ->  "placeholder"
+TaskType::CUDAFLOW        ->  "cudaflow"
+TaskType::SYCLFLOW        ->  "syclflow"
+TaskType::STATIC          ->  "static"
+TaskType::DYNAMIC         ->  "subflow"
+TaskType::CONDITION       ->  "condition"
+TaskType::MULTI_CONDITION ->  "multi_condition"
+TaskType::MODULE          ->  "module"
+TaskType::ASYNC           ->  "async"
+TaskType::RUNTIME         ->  "runtime"
+ */
+pub enum TaskType<'a> {
+    StaticFn(StaticFn<'a>),
     Subflow(Subflow),
     Module(Module),
 }
-impl Deref for Task {
-    type Target = TaskType;
+impl<'a> Deref for Task<'a> {
+    type Target = TaskType<'a>;
     fn deref(&self) -> &Self::Target {
         &self.callable
     }
 }
-pub struct Task {
-    callable: TaskType,
+pub struct Task<'a> {
+    callable: TaskType<'a>,
 }
