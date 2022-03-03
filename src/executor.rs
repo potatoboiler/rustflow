@@ -30,7 +30,8 @@ enum WorkerAction {
 }
 
 impl Scheduler {
-    fn get_map(&mut self, a: WorkerAction, d: &Domain) -> &AtomicU32 {
+    #[inline(always)]
+    fn get_map_atom(&mut self, a: WorkerAction, d: &Domain) -> &AtomicU32 {
         let map: &mut HashMap<Domain, AtomicU32> = match a {
             WorkerAction::Actives => &mut self.actives,
             WorkerAction::Thieves => &mut self.thieves,
@@ -45,20 +46,13 @@ trait Atomic {
 }
 impl Atomic for Scheduler {
     fn atom_inc(&mut self, a: WorkerAction, d: &Domain) -> u32 {
-        self.get_map(a, d).fetch_add(1, Relaxed) + 1
+        self.get_map_atom(a, d).fetch_add(1, Relaxed) + 1
     }
     fn atom_dec(&mut self, a: WorkerAction, d: &Domain) -> u32 {
-        self.get_map(a, d).fetch_sub(1, Relaxed) - 1
+        self.get_map_atom(a, d).fetch_sub(1, Relaxed) - 1
     }
     fn atom_load(&mut self, a: WorkerAction, d: &Domain) -> u32 {
-        self.get_map(a, d).load(Relaxed)
-    }
-}
-
-struct Notifier {}
-impl Default for Notifier {
-    fn default() -> Notifier {
-        Notifier {}
+        self.get_map_atom(a, d).load(Relaxed)
     }
 }
 pub struct Scheduler {
@@ -68,6 +62,13 @@ pub struct Scheduler {
     shared_queues: HashMap<Domain, VecDeque<Task>>, // may need to refactor if extra traits are needed?
     // activesLock:
     notifiers: HashMap<Domain, Notifier>,
+}
+
+struct Notifier {}
+impl Default for Notifier {
+    fn default() -> Notifier {
+        Notifier {}
+    }
 }
 pub struct Executor {
     graph: TaskGraph,
@@ -91,9 +92,14 @@ impl Default for Scheduler {
     }
 }
 impl Scheduler {
-    fn new(num_threads: u32, num_gpus: u32) {
+    fn new(num_threads: u32, num_gpus: u32) -> Scheduler {
         // i guess, we assume that gpus are 1-to-1 with workers
         assert!(num_threads > 0);
+        let tmp_workers = Vec::<Worker>::new();
+        Scheduler {
+            // FIXME
+            ..Default::default()
+        }
     }
 }
 
@@ -101,6 +107,7 @@ impl Executor {
     fn new() -> Executor {
         // let Scheduler { workers: 5, actives, thieves, shared_queues, notifiers }
         Executor {
+            // FIXME
             graph: TaskGraph::new(),
             scheduler: Scheduler::default(),
         }

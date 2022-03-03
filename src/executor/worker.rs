@@ -7,6 +7,7 @@ use super::{Atomic, Domain, Scheduler};
 // consider refactoring as https://stackoverflow.com/questions/59426358/how-to-make-a-struct-containing-an-enum-generic-over-the-enum-variant
 enum ThreadType {
     // GPU corresponds to nvidia SM?
+    // use wgpu or rust-cuda?
     GPU,
     CPU(Thread),
 }
@@ -70,6 +71,7 @@ fn exploit_task(w: &mut Worker, s: &mut Scheduler) {
     s.atom_dec(Actives, &w.dom);
 }
 fn wait_for_task(w: &mut Worker, t: &Option<Task>) -> bool {
+    // FIXME
     false
 }
 
