@@ -7,7 +7,7 @@
 use std::ops::Deref;
 
 trait Executable {
-    fn execute();
+    fn execute(&mut self);
 }
 
 impl<'a> StaticFn<'a> {
@@ -21,20 +21,19 @@ impl<'a> StaticFn<'a> {
     }
 }
 impl<'a> Executable for StaticFn<'a> {
-    fn execute() {}
+    fn execute(&mut self) {
+        (self.function)();
+    }
 }
-// https://github.com/rhaiscript/rhai/blob/main/src/func/func.rs
-// RHAI has some nice generic fn pointers?
-// function: Box<dyn Fn() -> ()>,
 pub struct StaticFn<'a> {
     function: Box<dyn FnMut() + 'a>,
 }
 impl Executable for Module {
-    fn execute() {}
+    fn execute(&mut self) {}
 }
 pub struct Module {}
 impl Executable for Subflow {
-    fn execute() {}
+    fn execute(&mut self) {}
 }
 pub struct Subflow {
     // subflows should be executed as their own task flow??
