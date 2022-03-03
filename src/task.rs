@@ -11,9 +11,12 @@ trait Executable {
 }
 
 impl<'a> StaticFn<'a> {
-    fn new(func: dyn Fn()) -> StaticFn<'a> {
+    fn new<T>(func: T) -> StaticFn<'a>
+    where
+        T: FnMut() + 'a,
+    {
         StaticFn {
-            function: Box::<dyn Fn()>::new(func),
+            function: Box::<T>::new(func),
         }
     }
 }
@@ -24,7 +27,7 @@ impl<'a> Executable for StaticFn<'a> {
 // RHAI has some nice generic fn pointers?
 // function: Box<dyn Fn() -> ()>,
 pub struct StaticFn<'a> {
-    function: Box<dyn Fn() + 'a>,
+    function: Box<dyn FnMut() + 'a>,
 }
 impl Executable for Module {
     fn execute() {}
