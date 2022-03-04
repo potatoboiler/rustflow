@@ -14,15 +14,10 @@ use crate::{task::Task, task_graph::TaskGraph};
 mod worker;
 use self::worker::Worker;
 
-#[derive(Eq, Hash)]
+#[derive(Eq, PartialEq, Hash)]
 enum Domain {
     GPU,
     CPU,
-}
-impl PartialEq for Domain {
-    fn eq(&self, other: &Self) -> bool {
-        self == other
-    }
 }
 enum WorkerAction {
     Actives,
