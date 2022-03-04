@@ -10,6 +10,11 @@ trait Executable {
     fn execute(&mut self);
 }
 
+// union FnType<'a> {
+// Fn: Box<dyn Fn() + 'a>,
+// FnOnce: Box<dyn FnOnce() + 'a>,
+// FnMut: Box<dyn FnMut() + 'a>,
+// }
 impl<'a> StaticFn<'a> {
     fn new<T>(func: T) -> StaticFn<'a>
     where
@@ -25,9 +30,27 @@ impl<'a> Executable for StaticFn<'a> {
         (self.function)();
     }
 }
+// eventually need to refactor to use trait unions (or implement my own) based on below
+// may need to also make this generic.
+// https://github.com/mahkoh/trait-union/blob/master/proc/src/lib.rs
 pub struct StaticFn<'a> {
     function: Box<dyn FnMut() + 'a>,
 }
+#[test]
+fn test1() {
+    let mut x: i32 = 0;
+    {
+        let mut foo = StaticFn::new(|| x += 1);
+        foo.execute();
+    }
+    assert_eq!(x, 1);
+}
+#[test]
+fn non_mut() {
+    let mut foo = StaticFn::new(|| println!("test"));
+    foo.execute();
+}
+
 impl Executable for Module {
     fn execute(&mut self) {}
 }
@@ -60,6 +83,36 @@ impl<'a> Deref for Task<'a> {
     type Target = TaskType<'a>;
     fn deref(&self) -> &Self::Target {
         &self.callable
+    }
+}
+impl<'a> Task<'a> {
+    // fn new<T>(f: T) -> Task<'a>
+    // where
+    // T:,
+    // {
+    // // Task { callable:  }
+    // }
+    fn new<T>(f: TaskType<'a>) -> Task<'a> {
+        match f {
+            TaskType::StaticFn(t) => return Task::from_fn(t.function),
+            TaskType::Module(m) => return Task { callable: TaskType::Module(m) },
+            TaskType::Subflow(s) => return Task { callable: TaskType::Subflow(s) },
+            _ => {
+                return Task {
+                    callable: TaskType::StaticFn(StaticFn::new(|| {
+                        println!("how did you end up here?")
+                    })),
+                }
+            }
+        }
+    }
+    fn from_fn<T>(f: T) -> Task<'a>
+    where
+        T: FnMut() + 'a,
+    {
+        Task {
+            callable: TaskType::StaticFn(StaticFn::new(f)),
+        }
     }
 }
 pub struct Task<'a> {
