@@ -24,7 +24,7 @@ enum WorkerAction {
     Thieves,
 }
 
-impl <'a>Scheduler <'a>{
+impl<'a> Scheduler<'a> {
     #[inline(always)]
     fn get_map_atom(&mut self, a: WorkerAction, d: &Domain) -> &AtomicU32 {
         let map: &mut HashMap<Domain, AtomicU32> = match a {
@@ -66,7 +66,7 @@ impl Default for Notifier {
     }
 }
 pub struct Executor<'a> {
-    graph: TaskGraph<'a>,
+    // graph: TaskGraph<'a>, // does taskgraph need to be member of taskflow?
     scheduler: Scheduler<'a>,
 }
 
@@ -103,7 +103,7 @@ impl<'a> Executor<'a> {
         // let Scheduler { workers: 5, actives, thieves, shared_queues, notifiers }
         Executor {
             // FIXME
-            graph: TaskGraph::new(),
+            // graph: TaskGraph::new(),
             scheduler: Scheduler::default(),
         }
     }

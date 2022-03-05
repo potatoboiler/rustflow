@@ -9,8 +9,17 @@ impl rustflow {
         // for i in 0..CPU_WORKERS {}
 
         let mut e: Executor::new();
-
     }
+
+    pub fn emplace<T>(&mut self, f: T)
+    where
+        T: FnMut,
+    {
+    }
+}
+struct rustflow {
+    // e: Executor,
+    g: TaskGraph,
 }
 pub mod rustflow {}
 
