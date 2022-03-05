@@ -4,7 +4,7 @@
 // - dynamic
 // - composable tasks ???
 
-use std::ops::Deref;
+use std::ops::{Deref, DerefMut};
 
 trait Executable {
     fn execute(&mut self);
@@ -85,18 +85,26 @@ impl<'a> Deref for Task<'a> {
         &self.callable
     }
 }
+/*
+impl<'a> DerefMut for Task<'a> {
+    // type Target = TaskType<'a>;
+    fn deref_mut(&mut self) -> &mut TaskType<'a> {
+        &mut self.callable
+    }
+}
+*/
+// https://stackoverflow.com/questions/25576748/how-to-compare-enum-without-pattern-matching
 impl<'a> Task<'a> {
-    // fn new<T>(f: T) -> Task<'a>
-    // where
-    // T:,
-    // {
-    // // Task { callable:  }
-    // }
+    // https://crates.io/crates/enum_dispatch
     fn new<T>(f: TaskType<'a>) -> Task<'a> {
         match f {
-            TaskType::StaticFn(t) => return Task::from_fn(t.function),
-            TaskType::Module(m) => return Task { callable: TaskType::Module(m) },
-            TaskType::Subflow(s) => return Task { callable: TaskType::Subflow(s) },
+            TaskType::StaticFn(t) => Task::from_fn(t.function),
+            TaskType::Module(m) => Task {
+                callable: TaskType::Module(m),
+            },
+            TaskType::Subflow(s) => Task {
+                callable: TaskType::Subflow(s),
+            },
             _ => {
                 return Task {
                     callable: TaskType::StaticFn(StaticFn::new(|| {
@@ -106,7 +114,7 @@ impl<'a> Task<'a> {
             }
         }
     }
-    fn from_fn<T>(f: T) -> Task<'a>
+    pub(crate) fn from_fn<T>(f: T) -> Task<'a>
     where
         T: FnMut() + 'a,
     {
