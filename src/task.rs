@@ -122,6 +122,19 @@ impl<'a> Task<'a> {
             callable: TaskType::StaticFn(StaticFn::new(f)),
         }
     }
+
+    pub(super) fn execute(&mut self) {
+        // (self.callable).execute();
+        match &mut self.callable {
+            // why do i need to use &
+            // refactor to impl execute on TaskType variant?? so i can get rid of this match
+            TaskType::StaticFn(t) => t.execute(),
+            TaskType::Module(m) => m.execute(),
+            TaskType::Subflow(s) => s.execute(),
+            _ => println!("asdf"),
+        };
+        // &mut self.deref_mut().execute();
+    }
 }
 pub struct Task<'a> {
     callable: TaskType<'a>,
