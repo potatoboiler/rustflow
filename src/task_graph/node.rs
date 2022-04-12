@@ -17,10 +17,6 @@ impl<'a> Node<'a> {
         self.successors.push(Arc::<Node>::new(n));
         // n.dependents.push(self);
     }
-
-    pub(super) fn execute(&mut self) {
-        self.executable.execute()
-    }
 }
 
 // pub fn precede<'a>(predecessor: &mut Node<'a>, successor: Node<'a>) {

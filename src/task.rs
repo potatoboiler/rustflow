@@ -6,10 +6,6 @@
 
 use std::ops::{Deref, DerefMut};
 
-trait Executable {
-    fn execute(&mut self);
-}
-
 // union FnType<'a> {
 // Fn: Box<dyn Fn() + 'a>,
 // FnOnce: Box<dyn FnOnce() + 'a>,
@@ -25,39 +21,14 @@ impl<'a> StaticFn<'a> {
         }
     }
 }
-impl<'a> Executable for StaticFn<'a> {
-    fn execute(&mut self) {
-        (self.function)();
-    }
-}
 // eventually need to refactor to use trait unions (or implement my own) based on below
 // may need to also make this generic.
 // https://github.com/mahkoh/trait-union/blob/master/proc/src/lib.rs
 pub struct StaticFn<'a> {
     function: Box<dyn FnMut() + 'a>,
 }
-#[test]
-fn test1() {
-    let mut x: i32 = 0;
-    {
-        let mut foo = StaticFn::new(|| x += 1);
-        foo.execute();
-    }
-    assert_eq!(x, 1);
-}
-#[test]
-fn non_mut() {
-    let mut foo = StaticFn::new(|| println!("test"));
-    foo.execute();
-}
 
-impl Executable for Module {
-    fn execute(&mut self) {}
-}
 pub struct Module {}
-impl Executable for Subflow {
-    fn execute(&mut self) {}
-}
 pub struct Subflow {
     // subflows should be executed as their own task flow??
 }
@@ -123,18 +94,6 @@ impl<'a> Task<'a> {
         }
     }
 
-    pub(super) fn execute(&mut self) {
-        // (self.callable).execute();
-        match &mut self.callable {
-            // why do i need to use &
-            // refactor to impl execute on TaskType variant?? so i can get rid of this match
-            TaskType::StaticFn(t) => t.execute(),
-            TaskType::Module(m) => m.execute(),
-            TaskType::Subflow(s) => s.execute(),
-            _ => println!("asdf"),
-        };
-        // &mut self.deref_mut().execute();
-    }
 }
 pub struct Task<'a> {
     callable: TaskType<'a>,
