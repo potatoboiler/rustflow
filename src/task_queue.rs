@@ -3,14 +3,14 @@ use crate::task::Task;
 use std::collections::VecDeque;
 use std::ops::{Deref, DerefMut};
 
-pub struct TaskQueue<'a> {
-    queue: VecDeque<Task<'a>>,
+pub struct TaskQueue {
+    queue: VecDeque<Task>,
     _affinity: u32,
     // process affinity?
 }
 
-impl<'a> Deref for TaskQueue<'a> {
-    type Target = VecDeque<Task<'a>>;
+impl Deref for TaskQueue {
+    type Target = VecDeque<Task>;
 
     #[inline(always)]
     fn deref(&self) -> &Self::Target {
@@ -18,7 +18,7 @@ impl<'a> Deref for TaskQueue<'a> {
     }
 }
 
-impl<'a> DerefMut for TaskQueue<'a> {
+impl DerefMut for TaskQueue {
     #[inline(always)]
     fn deref_mut(&mut self) -> &mut Self::Target {
         &mut self.queue

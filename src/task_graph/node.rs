@@ -12,18 +12,18 @@ macro_rules! precede {
     }};
 }
 
-impl<'a> Node<'a> {
-    pub fn precede(&mut self, n: Node<'a>) {
+impl Node {
+    pub fn precede(&mut self, n: Node) {
         self.successors.push(Arc::<Node>::new(n));
         // n.dependents.push(self);
     }
 }
 
-// pub fn precede<'a>(predecessor: &mut Node<'a>, successor: Node<'a>) {
+// pub fn precede(predecessor: &mut Node, successor: Node) {
 // predecessor.successors.push(Arc::<Node>::new(successor));
 // }
-pub struct Node<'a> {
-    executable: task::Task<'a>,
-    successors: Vec<Arc<Node<'a>>>,
-    dependents: Vec<Arc<Node<'a>>>,
+pub struct Node {
+    executable: task::Task,
+    successors: Vec<Arc<Node>>,
+    dependents: Vec<Arc<Node>>,
 }

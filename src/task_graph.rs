@@ -4,12 +4,12 @@ mod node;
 use node::Node;
 use std::sync::Arc;
 
-pub(crate) struct TaskGraph<'a> {
-    nodes: Vec<Arc<Node<'a>>>,
+pub(crate) struct TaskGraph {
+    nodes: Vec<Arc<Node>>,
 }
 
-impl<'a> TaskGraph<'a> {
-    pub(crate) fn new() -> TaskGraph<'a> {
+impl TaskGraph {
+    pub(crate) fn new() -> TaskGraph {
         TaskGraph {
             nodes: Vec::<Arc<Node>>::default(),
         }

@@ -8,15 +8,15 @@ use std::ops::{Deref, DerefMut};
 
 use crate::Context;
 
-// union FnType<'a> {
-// Fn: Box<dyn Fn() + 'a>,
-// FnOnce: Box<dyn FnOnce() + 'a>,
-// FnMut: Box<dyn FnMut() + 'a>,
+// union FnType {
+// Fn: Box<dyn Fn() + >,
+// FnOnce: Box<dyn FnOnce() + >,
+// FnMut: Box<dyn FnMut() + >,
 // }
-impl<'a> StaticFn<'a> {
-    fn new(func: impl Fn(&mut dyn Context) + 'a) -> StaticFn<'a>
+impl StaticFn {
+    fn new(func: impl Fn(&mut dyn Context) + 'static) -> StaticFn
     // where
-        // T: FnMut() + 'a,
+        // T: FnMut() + ,
     {
         StaticFn {
             function: Box::new(func),
@@ -26,8 +26,8 @@ impl<'a> StaticFn<'a> {
 // eventually need to refactor to use trait unions (or implement my own) based on below
 // may need to also make this generic.
 // https://github.com/mahkoh/trait-union/blob/master/proc/src/lib.rs
-pub struct StaticFn<'a> {
-    function: Box<dyn Fn(&mut dyn Context) + 'a>,
+pub struct StaticFn {
+    function: Box<dyn Fn(&mut dyn Context)>,
 }
 
 pub struct Module {}
@@ -47,29 +47,29 @@ TaskType::MODULE          ->  "module"
 TaskType::ASYNC           ->  "async"
 TaskType::RUNTIME         ->  "runtime"
  */
-pub enum TaskType<'a> {
-    StaticFn(StaticFn<'a>),
+pub enum TaskType {
+    StaticFn(StaticFn),
     Subflow(Subflow),
     Module(Module),
 }
-impl<'a> Deref for Task<'a> {
-    type Target = TaskType<'a>;
+impl Deref for Task {
+    type Target = TaskType;
     fn deref(&self) -> &Self::Target {
         &self.callable
     }
 }
 /*
-impl<'a> DerefMut for Task<'a> {
-    // type Target = TaskType<'a>;
-    fn deref_mut(&mut self) -> &mut TaskType<'a> {
+impl DerefMut for Task {
+    // type Target = TaskType;
+    fn deref_mut(&mut self) -> &mut TaskType {
         &mut self.callable
     }
 }
 */
 // https://stackoverflow.com/questions/25576748/how-to-compare-enum-without-pattern-matching
-impl<'a> Task<'a> {
+impl Task {
     // https://crates.io/crates/enum_dispatch
-    fn new(f: TaskType<'a>) -> Task<'a> {
+    fn new(f: TaskType) -> Task {
         match f {
             TaskType::StaticFn(t) => Task::from_fn(t.function),
             TaskType::Module(m) => Task {
@@ -88,13 +88,13 @@ impl<'a> Task<'a> {
         }
     }
     // this might not be necessary
-    pub(crate) fn from_fn(f: impl Fn(&mut dyn Context) + 'a) -> Task<'a>
+    pub(crate) fn from_fn(f: impl Fn(&mut dyn Context) + 'static) -> Task
     {
         Task {
             callable: TaskType::StaticFn(StaticFn::new(f)),
         }
     }
 }
-pub struct Task<'a> {
-    callable: TaskType<'a>,
+pub struct Task {
+    callable: TaskType,
 }
