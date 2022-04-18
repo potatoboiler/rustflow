@@ -15,8 +15,6 @@ use crate::Context;
 // }
 impl StaticFn {
     fn new(func: impl Fn(&mut dyn Context) + 'static) -> StaticFn
-    // where
-        // T: FnMut() + ,
     {
         StaticFn {
             function: Box::new(func),
@@ -71,7 +69,9 @@ impl Task {
     // https://crates.io/crates/enum_dispatch
     fn new(f: TaskType) -> Task {
         match f {
-            TaskType::StaticFn(t) => Task::from_fn(t.function),
+            TaskType::StaticFn(t) => Task {
+                callable: TaskType::StaticFn(StaticFn::new(t.function)),
+            },
             TaskType::Module(m) => Task {
                 callable: TaskType::Module(m),
             },
@@ -85,13 +85,6 @@ impl Task {
                     })),
                 }
             }
-        }
-    }
-    // this might not be necessary
-    pub(crate) fn from_fn(f: impl Fn(&mut dyn Context) + 'static) -> Task
-    {
-        Task {
-            callable: TaskType::StaticFn(StaticFn::new(f)),
         }
     }
 }
