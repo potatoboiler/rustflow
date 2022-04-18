@@ -6,18 +6,20 @@
 
 use std::ops::{Deref, DerefMut};
 
+use crate::Context;
+
 // union FnType<'a> {
 // Fn: Box<dyn Fn() + 'a>,
 // FnOnce: Box<dyn FnOnce() + 'a>,
 // FnMut: Box<dyn FnMut() + 'a>,
 // }
 impl<'a> StaticFn<'a> {
-    fn new<T>(func: T) -> StaticFn<'a>
-    where
-        T: FnMut() + 'a,
+    fn new(func: impl Fn(&mut dyn Context) + 'a) -> StaticFn<'a>
+    // where
+        // T: FnMut() + 'a,
     {
         StaticFn {
-            function: Box::<T>::new(func),
+            function: Box::new(func),
         }
     }
 }
@@ -25,7 +27,7 @@ impl<'a> StaticFn<'a> {
 // may need to also make this generic.
 // https://github.com/mahkoh/trait-union/blob/master/proc/src/lib.rs
 pub struct StaticFn<'a> {
-    function: Box<dyn FnMut() + 'a>,
+    function: Box<dyn Fn(&mut dyn Context) + 'a>,
 }
 
 pub struct Module {}
@@ -67,7 +69,7 @@ impl<'a> DerefMut for Task<'a> {
 // https://stackoverflow.com/questions/25576748/how-to-compare-enum-without-pattern-matching
 impl<'a> Task<'a> {
     // https://crates.io/crates/enum_dispatch
-    fn new<T>(f: TaskType<'a>) -> Task<'a> {
+    fn new(f: TaskType<'a>) -> Task<'a> {
         match f {
             TaskType::StaticFn(t) => Task::from_fn(t.function),
             TaskType::Module(m) => Task {
@@ -78,22 +80,20 @@ impl<'a> Task<'a> {
             },
             _ => {
                 return Task {
-                    callable: TaskType::StaticFn(StaticFn::new(|| {
+                    callable: TaskType::StaticFn(StaticFn::new(|_| {
                         println!("how did you end up here?")
                     })),
                 }
             }
         }
     }
-    pub(crate) fn from_fn<T>(f: T) -> Task<'a>
-    where
-        T: FnMut() + 'a,
+    // this might not be necessary
+    pub(crate) fn from_fn(f: impl Fn(&mut dyn Context) + 'a) -> Task<'a>
     {
         Task {
             callable: TaskType::StaticFn(StaticFn::new(f)),
         }
     }
-
 }
 pub struct Task<'a> {
     callable: TaskType<'a>,
