@@ -65,6 +65,9 @@ impl Default for Notifier {
         Notifier {}
     }
 }
+impl Notifier {
+    fn notify(&mut self, all: bool) {}
+}
 pub struct Executor<'a> {
     // graph: TaskGraph<'a>, // does taskgraph need to be member of taskflow?
     scheduler: Scheduler<'a>,

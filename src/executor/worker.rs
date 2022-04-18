@@ -40,7 +40,41 @@ fn abp_worker_loop(w: &mut Worker) {
 // actually does stuff
 impl<'a> Worker<'a> {
     // move all functions into here
-    pub(super) fn new(s: &mut Scheduler) {}
+    fn new() -> Worker<'a> {
+        Worker { _stop: (), queue: (), dom: (), thread: () }
+    }
+
+    fn run(&mut self) {
+
+    }
+
+    fn worker_loop(&self) {
+
+    }
+
+    fn exploit_task(&self) {
+
+    }
+
+    fn wait_for_task(&self) {
+
+    }
+
+    fn execute_task(&self) {
+
+    }
+
+    fn submit_task(&self) {
+
+    }
+
+    fn steal_task(&self) {
+
+    }
+
+    fn explore_task(&self) {
+
+    }
 }
 fn actual_worker_loop(w: &mut Worker, s: &mut Scheduler) {
     // let t: &Option<Task> = &None;

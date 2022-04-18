@@ -27,37 +27,3 @@ pub struct Node<'a> {
     successors: Vec<Arc<Node<'a>>>,
     dependents: Vec<Arc<Node<'a>>>,
 }
-
-#[test]
-fn node_precede_test() {
-    let mut a = Node {
-        executable: task::Task::from_fn(|| {}),
-        successors: Vec::default(),
-        dependents: Vec::default(),
-    };
-    let b = Node {
-        executable: task::Task::from_fn(|| {}),
-        successors: Vec::default(),
-        dependents: Vec::default(),
-    };
-    let c = Node {
-        executable: task::Task::from_fn(|| {}),
-        successors: Vec::default(),
-        dependents: Vec::default(),
-    };
-    let d = Node {
-        executable: task::Task::from_fn(|| {}),
-        successors: Vec::default(),
-        dependents: Vec::default(),
-    };
-    let e = Node {
-        executable: task::Task::from_fn(|| {}),
-        successors: Vec::default(),
-        dependents: Vec::default(),
-    };
-    precede!(a, b, c, d, e);
-    assert_eq!(a.successors.len(), 4);
-    for node in a.successors {
-        // node.get_mut().execute();
-    }
-}

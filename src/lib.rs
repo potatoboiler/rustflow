@@ -13,3 +13,6 @@ mod tests {
         assert_eq!(result, 4);
     }
 }
+
+
+pub trait Context {}
