@@ -1,4 +1,5 @@
-use std::thread::Thread;
+use std::sync::{Arc, RwLock};
+use std::thread::{self, JoinHandle};
 
 use crate::{task::Task, task_queue::TaskQueue};
 
@@ -6,19 +7,19 @@ use super::{Atomic, Domain, Scheduler};
 
 // consider refactoring as https://stackoverflow.com/questions/59426358/how-to-make-a-struct-containing-an-enum-generic-over-the-enum-variant
 enum ThreadType {
-    // GPU corresponds to nvidia SM?
-    // use wgpu or rust-cuda?
-    GPU,
-    CPU(Thread),
+    CPU,
 }
 
 // consider refactoring ref to parent as https://www.reddit.com/r/rust/comments/cnjhup/idiomatic_way_to_reference_parent_struct/ewb5r1y/
-pub(super) struct Worker {
+pub(crate) struct Worker {
     _stop: bool,
     // t: task::Task,
+    id: u32,
     queue: TaskQueue,
     dom: Domain,
-    thread: ThreadType,
+    thread: Option<JoinHandle<()>>,
+    curr_task: Option<Arc<Task>>,
+    sched: Arc<RwLock<Scheduler>>,
     // curr_task: mut Option<Task>,
     // thread runner : can be CPU or GPU or other
 }
@@ -41,46 +42,46 @@ fn abp_worker_loop(w: &mut Worker) {
 impl Worker {
     // move all functions into here
 
-    fn run(&mut self) {
-
+    // TODO
+    pub(crate) fn new(id: u32, sched: Arc<RwLock<Scheduler>>) -> Worker {
+        Worker {
+            _stop: false,
+            id: id,
+            queue: TaskQueue::new(id),
+            dom: Domain::CPU,
+            curr_task: None,
+            sched: sched.clone(),
+            thread: None,
+        }
     }
 
-    fn worker_loop(&self) {
-
+    fn worker_loop(&mut self) {
+        self.thread = Some(thread::spawn(|| loop {
+            self.exploit_task(self.curr_task.clone());
+            if self.wait_for_task() {
+                break;
+            }
+        }));
     }
 
-    fn exploit_task(&self) {
-
+    fn exploit_task(&self, t: Option<Arc<Task>>) {
+        let mut sched = self.sched.write().unwrap();
     }
 
-    fn wait_for_task(&self) {
-
+    fn wait_for_task(&self) -> bool {
+        false
     }
 
     fn execute_task(&self) {
-
+        // executes jobs
+        self.curr_task.as_ref();
     }
 
-    fn submit_task(&self) {
+    fn submit_task(&self) {}
 
-    }
+    fn steal_task(&self) {}
 
-    fn steal_task(&self) {
-
-    }
-
-    fn explore_task(&self) {
-
-    }
-}
-fn actual_worker_loop(w: &mut Worker, s: &mut Scheduler) {
-    // let t: &Option<Task> = &None;
-    loop {
-        exploit_task(w, s);
-        // if !wait_for_task(w, ) {
-        // break;
-        // }
-    }
+    fn explore_task(&self) {}
 }
 use super::WorkerAction::*;
 // behavior will start to differ because we are no longer passing a NIL task into the function, we are popping it directly

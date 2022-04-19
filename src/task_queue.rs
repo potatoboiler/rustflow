@@ -3,7 +3,7 @@ use crate::task::Task;
 use std::collections::VecDeque;
 use std::ops::{Deref, DerefMut};
 
-pub struct TaskQueue {
+pub(crate) struct TaskQueue {
     queue: VecDeque<Task>,
     _affinity: u32,
     // process affinity?
@@ -22,5 +22,14 @@ impl DerefMut for TaskQueue {
     #[inline(always)]
     fn deref_mut(&mut self) -> &mut Self::Target {
         &mut self.queue
+    }
+}
+
+impl TaskQueue {
+    pub(crate) fn new(id: u32) -> Self {
+        Self {
+            queue: Default::default(),
+            _affinity: id,
+        }
     }
 }

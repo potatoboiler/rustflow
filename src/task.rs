@@ -1,4 +1,5 @@
 // implements the callable task object... not the hierarchies
+// User class meant for constructing graph
 // Multiple task types:
 // - static
 // - dynamic

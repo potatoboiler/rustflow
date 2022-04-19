@@ -1,11 +1,11 @@
 use std::{
     collections::{HashMap, VecDeque},
     hash::Hash,
-    sync::atomic::AtomicU32,
     sync::atomic::Ordering::Relaxed,
+    sync::{atomic::AtomicU32, Arc, RwLock},
 };
 
-use crate::{task::Task, task_graph::TaskGraph};
+use crate::{task::Task, task_graph::TaskGraph, task_queue::TaskQueue};
 // executor can take workers and assign them to nodes --> invoke(worker, node)
 // find topological sort? (is there any way to have this weighted?)
 
@@ -68,9 +68,25 @@ impl Default for Notifier {
 impl Notifier {
     fn notify(&mut self, all: bool) {}
 }
-pub struct Executor {
+struct WorkerPool {
+    workers: Vec<Worker>,
+}
+impl WorkerPool {
+    fn new(n: u32, sched: Arc<RwLock<Scheduler>>) -> WorkerPool {
+        let mut pool = WorkerPool {
+            workers: Default::default(),
+        };
+        for i in 0..n {
+            pool.workers.push(Worker::new(i, sched.clone()));
+        }
+
+        pool
+    }
+}
+struct Executor {
     // graph: TaskGraph, // does taskgraph need to be member of taskflow?
     scheduler: Scheduler,
+    pool: WorkerPool,
 }
 
 impl Default for Scheduler {
@@ -102,12 +118,14 @@ impl Scheduler {
 }
 
 impl Executor {
-    fn new() -> Executor {
+    fn new(n: u32) -> Executor {
         // let Scheduler { workers: 5, actives, thieves, shared_queues, notifiers }
+        let local_scheduler = Scheduler::default();
         Executor {
             // FIXME
             // graph: TaskGraph::new(),
-            scheduler: Scheduler::default(),
+            scheduler: local_scheduler, // remove this line later
+            pool: WorkerPool::new(n, Arc::new(RwLock::new(Scheduler::default()))), // isn't this faulty?
         }
     }
 }
